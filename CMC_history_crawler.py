@@ -6,7 +6,7 @@ import csv
 
 
 def cmc_crawler():
-    my_url = "https://coinmarketcap.com/exchanges/volume/24-hour/all/"
+    my_url = "https://coinmarketcap.com/historical/20130428/"
     uClient = uReq(my_url) #downloads the website
     page_html = uClient.read() #html of the website
     uClient.close() #closing client
@@ -18,6 +18,40 @@ def cmc_crawler():
 
     #get exchanges and links
 
+    table = page_soup.find('table')
+    table_body = table.find('tbody')
+
+    rows = table_body.find_all('tr')
+    for row in rows:
+        cols = row.find_all('td')
+        number = cols[0].text
+        name = cols[1].text
+        symbol = cols[2].text
+        mcap = cols[3].text
+        price = cols[4].text
+        circ_sup = cols[5].text
+        
+        
+        
+        
+     
+    
+    
+        
+  #while my_url nicht empty     
+  my_url = page_soup.findAll("li", text=Next Week)
+    
+    uClient = uReq(my_url) #downloads the website
+    page_html = uClient.read() #html of the website
+    uClient.close() #closing client
+    
+    
+    
+    
+    
+    
+    
+    
     for header in page_soup.select(".volume-header"):
         counter = counter + 1
         if counter <= 3: #limitiert auf nummer an exchanges!!!
