@@ -12,32 +12,26 @@ def cmc_crawler():
     uClient.close()  # closing client
     page_soup = soup(page_html, "html.parser")  # html parser
 
-    exchanges_data = {}
-    counter = 0
-
     #link to next week
     paginator = page_soup.select(".pagination")[0]
     link_nw = paginator.findAll('a', href=True)[1].attrs["href"]
-
-    #go to next week
+    #go to next week, --> muss man glaube ich nicht
     ck_uClient = uReq(link_nw)  # downloads the website
     ck_page_html = ck_uClient.read()  # html of the website
     ck_uClient.close()  # closing client
-
+    #html von next week
     ck_page_soup = soup(ck_page_html, "html.parser")  # html parser
-
     #link to next next week
     ck_paginator = ck_page_soup.select(".pagination")[0]
     ck_link_nw = ck_paginator.findAll('a', href=True)[1].attrs["href"]
 
-    #if there us a next next week, prepare for loop
-    if ck_link_nw == '':
-        break
-    else:
-        uClient = uReq(my_url)  # downloads the website
-        page_html = uClient.read()  # html of the website
-        uClient.close()  # closing client
-        page_soup = soup(page_html, "html.parser")  # html parser
+    #main loop, history container
+    history = []
+    while link_nw != '':
+        #uClient = uReq(my_url)  # downloads the website
+        #page_html = uClient.read()  # html of the website
+        #uClient.close()  # closing client
+        #page_soup = soup(page_html, "html.parser")  # html parser
 
 
         date = page_soup.find_all('h1')[1].text.split("- ")[1]
@@ -54,18 +48,27 @@ def cmc_crawler():
             mcap = cols[3].text
             price = cols[4].text
             circ_sup = cols[5].text
+            
+            history.append(date, number, name, symbol, mcap, price, circ_sup)
 
-    #url auf nächste seite ändern
-    paginator = page_soup.select(".pagination")[0]
-    my_url = paginator.findAll('a', href=True)[1].attrs["href"]
+        #url auf nächste seite ändern
+        paginator = page_soup.select(".pagination")[0]
+        url_date = paginator.findAll('a', href=True)[1].attrs["href"]
+        my_url = urljoin('https://coinmarketcap.com/historical/',url_date)
+        uClient = uReq(my_url)  # downloads the website
+        page_html = uClient.read()  # html of the website
+        uClient.close()  # closing client
+        page_soup = soup(page_html, "html.parser")  # html parser
+        paginator = page_soup.select(".pagination")[0]
+        link_nw = paginator.findAll('a', href=True)[1].attrs["href"]
+        
+    return(history)
 
-
-
-def csv_writer(dict):
-    with open('cmc_exchanges.csv', 'w', newline='') as csvfile:
+def csv_writer(history):
+    with open('cmc_history.csv', 'w', newline='') as csvfile:
         writer = csv.writer(csvfile, delimiter=' ',
                             quotechar='|', quoting=csv.QUOTE_MINIMAL)
-        for key, value in dict.items():
-            writer.writerow([key, value])
+        for date, number, name, symbol, mcap, price, circ_sup in history:
+            writer.writerow([date, number, name, symbol, mcap, price, circ_sup])
 
 #csv_writer(cmc_crawler())
