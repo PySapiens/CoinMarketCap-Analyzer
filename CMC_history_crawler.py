@@ -34,7 +34,7 @@ def cmc_history_crawler():
         # uClient.close()  # closing client
         # page_soup = soup(page_html, "html.parser")  # html parser
 
-        date = page_soup.find_all('h1')[1].text.split("- ")[1]
+        date = page_soup.find_all('h1')[1].text.split("- ")[1].strip
         print(date)
         table = page_soup.find('table')
         table_body = table.find('tbody')
@@ -44,12 +44,12 @@ def cmc_history_crawler():
 
         for row in rows:
             cols = row.find_all('td')
-            number = cols[0].text
-            name = cols[1].text
-            symbol = cols[2].text
-            mcap = cols[3].text
-            price = cols[4].text
-            circ_sup = cols[5].text
+            number = cols[0].text.strip
+            name = cols[1].text.strip
+            symbol = cols[2].text.strip
+            mcap = cols[3].text.strip
+            price = cols[4].text.strip
+            circ_sup = cols[5].text.strip
 
             history.append([date, number, name, symbol, mcap, price, circ_sup])
             counter += 1
